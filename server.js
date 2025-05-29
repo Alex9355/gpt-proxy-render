@@ -20,20 +20,23 @@ app.post('/generate', async (req, res) => {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.8
+        model: 'openai/gpt-3.5-turbo', // заменено для экономии
+        max_tokens: 300,               // обязательно!
+        temperature: 0.8,
+        messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-    res.json({ text: data.choices?.[0]?.message?.content || 'Ошибка генерации.' });
+    const text = data.choices?.[0]?.message?.content;
+
+    res.json({ text: text || 'Ошибка генерации.' });
   } catch (err) {
-    console.error(err);
+    console.error('Ошибка запроса к OpenRouter:', err);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`GPT Proxy сервер запущен на порту ${PORT}`);
+  console.log(`✅ GPT Proxy сервер запущен на порту ${PORT}`);
 });
